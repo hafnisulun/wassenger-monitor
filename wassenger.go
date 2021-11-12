@@ -52,8 +52,8 @@ type slackRequestBody struct {
 	Attachments []SlackAttachment `json:"attachments"`
 }
 
-func (r Wassenger) Monitor(isAlwaysNotify bool) {
-	log.Println("Monitor start")
+func (r Wassenger) Monitor(status *string) {
+	log.Printf("Monitor start, status: %s\n", *status)
 
 	client := &http.Client{}
 	url := os.Getenv("WASSENGER_BASE_URL") + "/devices"
@@ -87,15 +87,18 @@ func (r Wassenger) Monitor(isAlwaysNotify bool) {
 		slackAttachment.Color = "danger"
 		slackAttachment.Fallback = "No devices"
 		slackAttachment.Pretext = "No devices"
+		*status = "no devices"
 	} else {
 		device := devices[0]
 
 		if device.Session.Status != "online" {
 			slackAttachment.Color = "danger"
-		} else if !isAlwaysNotify {
-			log.Println("Monitor finish")
+		} else if *status == "online" {
+			log.Println("All is good, monitor finish")
 			return
 		}
+
+		*status = device.Session.Status
 
 		slackAttachment.Fallback = "Device is " + device.Session.Status
 		slackAttachment.Pretext = "Device is " + device.Session.Status
