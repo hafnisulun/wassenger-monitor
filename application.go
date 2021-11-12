@@ -12,7 +12,7 @@ func main() {
 
 	status := ""
 	// Run every 15 minutes
-	s.Every(15).Minute().Do(func() {
+	s.Cron("*/15 * * * *").Do(func() {
 		wassenger := new(Wassenger)
 		wassenger.Monitor(&status)
 	})
